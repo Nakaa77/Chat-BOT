@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Qira adalah assistant AI gratis.">
-  <meta name="keywords" content="Qira, Chat AI, Assistant Chat">
-  <title>Qira Chat</title>
+  <meta name="description" content="Youru adalah assistant AI gratis.">
+  <meta name="keywords" content="Youru, Chat AI, Assistant Chat">
+  <title>Youru Assistant</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
@@ -34,7 +34,7 @@
     <div class="bg-[image:url('https://raw.githubusercontent.com/sudoxv/xcdn/refs/heads/main/bg-dark.jpg')] bg-cover bg-center shadow-lg text-white p-4 flex justify-between items-center select-none">
       <div class="flex items-center">
         <img class="rounded-full h-9 w-9 mr-2" src="https://placehold.co/300x300?text=Avatar">
-        <span class="text-lg text-white mr-2">Qira Assistant</span>
+        <span class="text-lg text-white mr-2">Youru Assistant</span>
         <i class="fa fa-check-circle text-blue-500"></i>
       </div>
       <div class="flex items-center">
@@ -165,13 +165,13 @@
         const history = getMessageHistoryForAPI();
         try {
           const { data } = await axios.post("https://api.manaxu.my.id/api/v1/ai", {
-            logic: 'Nama kamu adalah Qira',
+            logic: 'Nama kamu adalah Youru',
             messages: history
           }, {
             headers: { 'x-api-key': 'key-manaxu-free' }
           });
 
-          const botData = { role: 'bot', username: 'Qira Assistant' };
+          const botData = { role: 'bot', username: 'Youru' };
           handlerMsg(botData, data.result);
           saveChat(botData, data.result);
         } catch (err) {
