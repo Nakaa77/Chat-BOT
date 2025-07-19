@@ -104,10 +104,7 @@
 
         const MsgContent = document.createElement('span');
         MsgContent.className = "markdown prose prose-invert max-w-none text-white text-sm";
-        const parsedText = marked.parse(text);
-        const tempElement = document.createElement('div');
-        tempElement.textContent = parsedText;
-        MsgContent.textContent = tempElement.textContent;
+        MsgContent.innerHTML = marked.parse(text);
         MsgContent.querySelectorAll('pre code').forEach(block => {
           hljs.highlightElement(block);
         });
