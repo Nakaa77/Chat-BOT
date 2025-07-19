@@ -45,7 +45,7 @@
     </div>
 
     <!-- Chat Container -->
-    <div id="chat-log" class="flex-1 w-full overflow-y-auto overflow-x-hidden px-2 py-4 space-y-2 mb-16"></div>
+    <div id="chat-log" class="flex-1 w-full overflow-y-auto overflow-x-hidden px-2 py-4 space-y-2 mb-36"></div>
 
     <!-- Input -->
     <div class="fixed bottom-0 left-0 w-full bg-transparent p-3">
@@ -69,8 +69,7 @@
   <script src="https://unpkg.com/axios@1.7.7/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
-
+  
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const inputMsg = document.getElementById('input-msg');
@@ -105,7 +104,10 @@
 
         const MsgContent = document.createElement('span');
         MsgContent.className = "markdown prose prose-invert max-w-none text-white text-sm";
-        MsgContent.innerHTML = DOMPurify.sanitize(marked.parse(text));
+        const parsedText = marked.parse(text);
+        const tempElement = document.createElement('div');
+        tempElement.textContent = parsedText;
+        MsgContent.textContent = tempElement.textContent;
         MsgContent.querySelectorAll('pre code').forEach(block => {
           hljs.highlightElement(block);
         });
