@@ -8,7 +8,6 @@
   <title>Qira Chat</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
   <style>
     pre {
       overflow-x: auto;
@@ -21,22 +20,24 @@
     }
   </style>
 </head>
-<body class="bg-gray-900 text-white">
+<body class="bg-gray-900 overflow-hidden">
   <div class="h-screen flex flex-col">
     <!-- Header -->
-    <div class="bg-[image:url('https://raw.githubusercontent.com/sudoxv/xcdn/refs/heads/main/bg-dark.jpg')] bg-cover bg-center shadow-lg p-4 flex justify-between items-center select-none">
+    <div class="bg-[image:url('https://raw.githubusercontent.com/sudoxv/xcdn/refs/heads/main/bg-dark.jpg')] bg-cover bg-center shadow-lg text-white p-4 flex justify-between items-center select-none">
       <div class="flex items-center">
         <img class="rounded-full h-9 w-9 mr-2" src="https://placehold.co/300x300?text=Avatar">
-        <span class="text-lg mr-2">Qira Assistant</span>
+        <span class="text-lg text-white mr-2">Qira Assistant</span>
         <i class="fa fa-check-circle text-blue-500"></i>
       </div>
-      <button onclick="localStorage.removeItem('chat_session'); location.reload();" class="px-3 py-2 bg-red-600 text-gray-200 rounded-full hover:bg-red-700">
-        <i class="fa fa-trash"></i>
-      </button>
+      <div class="flex items-center">
+        <button onclick="localStorage.removeItem('chat_session'); location.reload();" class="ml-2 px-3 py-2 bg-red-600 text-gray-200 rounded-full hover:bg-red-700">
+          <i class="fa fa-trash"></i>
+        </button>
+      </div>
     </div>
 
-    <!-- Chat Area -->
-    <div id="chat-log" class="flex-1 w-full overflow-y-auto px-2 py-4 space-y-2 mb-24"></div>
+    <!-- Chat Container -->
+    <div id="chat-log" class="flex-1 w-full overflow-y-auto overflow-x-hidden px-2 py-4 space-y-2 mb-24"></div>
 
     <!-- Input -->
     <div class="fixed bottom-0 left-0 w-full bg-transparent p-3">
@@ -46,11 +47,11 @@
           placeholder="Ketik pesan..."
           rows="1"
           autofocus
-          class="flex-1 resize-none bg-gray-700 text-white rounded-3xl px-4 py-2 mr-2 focus:outline-none"
+          class="flex-1 resize-none overflow-y-auto bg-gray-700 text-white rounded-3xl px-4 py-2 mr-2 focus:outline-none"
           style="max-height: 8rem;"
           oninput="this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 128) + 'px';"
         ></textarea>
-        <button id="send-msg" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 h-10 w-10 rounded-full">
+        <button id="send-msg" class="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 h-10 w-10 rounded-full">
           <i class="fa fa-paper-plane"></i>
         </button>
       </div>
@@ -67,15 +68,15 @@
       const sendMsg = document.getElementById('send-msg');
       const chatLog = document.getElementById('chat-log');
 
+      const loadChat = () => {
+        const saved = JSON.parse(localStorage.getItem('chat_session')) || [];
+        saved.forEach(({ data, text }) => handlerMsg(data, text));
+      };
+
       const saveChat = (data, text) => {
         const chats = JSON.parse(localStorage.getItem('chat_session')) || [];
         chats.push({ data, text });
         localStorage.setItem('chat_session', JSON.stringify(chats));
-      };
-
-      const loadChat = () => {
-        const saved = JSON.parse(localStorage.getItem('chat_session')) || [];
-        saved.forEach(({ data, text }) => handlerMsg(data, text));
       };
 
       const getMessageHistoryForAPI = () => {
@@ -88,8 +89,9 @@
 
       const handlerMsg = (data = {}, text) => {
         const chat = document.createElement('div');
+
         const MsgContent = document.createElement('div');
-        MsgContent.className = "prose prose-invert max-w-none text-sm";
+        MsgContent.className = "markdown prose prose-invert max-w-none text-white text-sm";
         MsgContent.innerHTML = marked.parse(text);
         MsgContent.querySelectorAll('pre code').forEach(block => {
           hljs.highlightElement(block);
@@ -97,25 +99,49 @@
 
         if (data.isMe) {
           const Msg = document.createElement('div');
-          Msg.className = "flex justify-end px-4 py-2";
-          Msg.innerHTML = `<div class="relative bg-gray-800 text-white rounded-xl px-4 py-3 max-w-xs sm:max-w-sm md:max-w-md break-words"><span class="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-l-[10px] border-t-gray-800 border-l-transparent"></span></div>`;
-          Msg.children[0].appendChild(MsgContent);
+          const MsgAtt = document.createElement('span');
+
+          chat.className = "flex justify-end px-4 py-2 items-start space-x-2";
+          Msg.className = "relative bg-gray-800 text-white rounded-xl px-4 py-3 w-fit max-w-screen-sm shadow-md break-words";
+          MsgAtt.className = "absolute top-0 right-0 w-0 h-0 border-t-[10px] border-l-[10px] border-t-gray-800 border-l-transparent";
+
+          Msg.appendChild(MsgAtt);
+          Msg.appendChild(MsgContent);
           chat.appendChild(Msg);
         } else {
+          const PhotoProfile = document.createElement('img');
           const Msg = document.createElement('div');
-          Msg.className = "flex justify-start px-4 py-2 space-x-2";
-          Msg.innerHTML = `
-            <img class="rounded-full h-6 w-6" src="https://placehold.co/300x300?text=Avatar">
-            <div class="flex flex-col space-y-1">
-              <div class="flex items-center ml-1 text-sm text-blue-500">
-                <span class="font-semibold mr-1">${data.username}</span>
-                ${data.role === 'bot' ? '<span class="text-xs text-gray-900 bg-blue-500 rounded-2xl px-2">Assistant</span>' : ''}
-              </div>
-              <div class="relative bg-blue-800 text-white rounded-xl px-4 py-3 max-w-xs sm:max-w-sm md:max-w-md break-words">
-                <span class="absolute top-0 left-0 w-0 h-0 border-t-[10px] border-r-[10px] border-t-blue-800 border-r-transparent"></span>
-              </div>
-            </div>`;
-          Msg.querySelector(".relative").appendChild(MsgContent);
+          const MsgHeader = document.createElement('div');
+          const Username = document.createElement('span');
+          const Role = document.createElement('span');
+          const MsgContainer = document.createElement('div');
+          const MsgAtt = document.createElement('span');
+
+          chat.className = "flex justify-start px-4 py-2 items-start space-x-2 touch";
+          PhotoProfile.className = "rounded-full h-6 w-6";
+          PhotoProfile.src = "https://placehold.co/300x300?text=Avatar";
+          Msg.className = "flex flex-col space-y-1";
+          MsgHeader.className = "flex items-center ml-1 text-sm text-blue-500 select-none";
+          Username.className = "font-semibold mr-1";
+          Username.textContent = data.username;
+
+          MsgContainer.className = "relative bg-blue-800 text-white rounded-xl px-4 py-3 shadow-md break-words";
+          MsgAtt.className = "absolute top-0 left-0 w-0 h-0 border-t-[10px] border-r-[10px] border-t-blue-800 border-r-transparent";
+
+          if (data.role === 'bot') {
+            Role.className = "text-xs text-gray-900 bg-blue-500 rounded-2xl px-2";
+            Role.textContent = "Assistant";
+            MsgHeader.appendChild(Username);
+            MsgHeader.appendChild(Role);
+          } else {
+            MsgHeader.appendChild(Username);
+          }
+
+          MsgContainer.appendChild(MsgAtt);
+          MsgContainer.appendChild(MsgContent);
+          Msg.appendChild(MsgHeader);
+          Msg.appendChild(MsgContainer);
+          chat.appendChild(PhotoProfile);
           chat.appendChild(Msg);
         }
 
