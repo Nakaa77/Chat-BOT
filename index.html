@@ -12,23 +12,31 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .markdown.prose *:not(pre):not(code) {
-      white-space: normal !important;
-      overflow-wrap: break-word;
-      word-break: break-word;
-    }
-    .markdown.prose pre {
-      overflow-x: auto;
-      overflow-y: hidden;
-      padding: 0.5rem;
-      border-radius: 0.5rem;
-      margin-bottom: 1rem;
-      max-width: 100%;
-    }
-    .markdown.prose pre code {
-      display: block;
-      white-space: pre !important;
-      min-width: max-content;
-    }
+    /* Text biasa tetap wrap, kecuali code block */
+.markdown.prose *:not(pre):not(code) {
+  white-space: normal !important;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Container code block */
+.markdown.prose pre {
+  overflow-x: auto;
+  overflow-y: hidden;
+  background-color: #1f2937; /* Tailwind gray-800 */
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  max-width: 100%;
+  margin-bottom: 1rem;
+}
+
+/* Code dalam block, biar scroll horizontal */
+.markdown.prose pre code {
+  display: block;
+  white-space: pre !important;
+  min-width: 100%;
+}
+
   </style>
 </head>
 <body class="bg-gray-900 overflow-hidden">
