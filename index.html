@@ -8,27 +8,14 @@
   <title>Qira Chat</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-  <style>
-    pre {
-      overflow-x: auto;
-      padding: 0.5rem;
-      border-radius: 0.375rem;
-    }
-    code {
-      display: block;
-      white-space: pre;
-    }
-  </style>
 </head>
-<body class="bg-gray-900 overflow-hidden text-white">
+<body class="bg-gray-900 overflow-hidden">
   <div class="h-screen flex flex-col">
     <!-- Header -->
-    <div class="bg-[image:url('https://raw.githubusercontent.com/sudoxv/xcdn/refs/heads/main/bg-dark.jpg')] bg-cover bg-center shadow-lg p-4 flex justify-between items-center select-none">
+    <div class="bg-[image:url('https://raw.githubusercontent.com/sudoxv/xcdn/refs/heads/main/bg-dark.jpg')] bg-cover bg-center shadow-lg text-white p-4 flex justify-between items-center select-none">
       <div class="flex items-center">
         <img class="rounded-full h-9 w-9 mr-2" src="https://placehold.co/300x300?text=Avatar">
-        <span class="text-lg mr-2">Qira Assistant</span>
+        <span class="text-lg text-white mr-2">Qira Assistant</span>
         <i class="fa fa-check-circle text-blue-500"></i>
       </div>
       <div class="flex items-center">
@@ -60,9 +47,8 @@
     </div>
   </div>
 
+  <!-- Axios -->
   <script src="https://unpkg.com/axios@1.7.7/dist/axios.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -70,17 +56,20 @@
       const sendMsg = document.getElementById('send-msg');
       const chatLog = document.getElementById('chat-log');
 
+      // Load dari localStorage
+      const loadChat = () => {
+        const saved = JSON.parse(localStorage.getItem('chat_session')) || [];
+        saved.forEach(({ data, text }) => handlerMsg(data, text));
+      };
+
+      // Simpan ke localStorage
       const saveChat = (data, text) => {
         const chats = JSON.parse(localStorage.getItem('chat_session')) || [];
         chats.push({ data, text });
         localStorage.setItem('chat_session', JSON.stringify(chats));
       };
 
-      const loadChat = () => {
-        const saved = JSON.parse(localStorage.getItem('chat_session')) || [];
-        saved.forEach(({ data, text }) => handlerMsg(data, text));
-      };
-
+      // Format messages untuk API
       const getMessageHistoryForAPI = () => {
         const raw = JSON.parse(localStorage.getItem('chat_session')) || [];
         return raw.map(({ data, text }) => {
@@ -89,13 +78,16 @@
         });
       };
 
+      // Tampilkan chat
       const handlerMsg = (data = {}, text) => {
         const chat = document.createElement('div');
-        const MsgContent = document.createElement('div');
-        MsgContent.className = "markdown prose prose-invert max-w-none text-white text-sm";
-        MsgContent.innerHTML = marked.parse(text);
-        MsgContent.querySelectorAll('pre code').forEach(block => {
-          hljs.highlightElement(block);
+
+        const lines = text.split('\n');
+        const MsgContent = document.createElement('span');
+        lines.forEach(line => {
+          const p = document.createElement('p');
+          p.textContent = line;
+          MsgContent.appendChild(p);
         });
 
         if (data.isMe) {
@@ -118,7 +110,7 @@
           const MsgContainer = document.createElement('div');
           const MsgAtt = document.createElement('span');
 
-          chat.className = "flex justify-start px-4 py-2 items-start space-x-2";
+          chat.className = "flex justify-start px-4 py-2 items-start space-x-2 touch";
           PhotoProfile.className = "rounded-full h-6 w-6";
           PhotoProfile.src = "https://placehold.co/300x300?text=Avatar";
           Msg.className = "flex flex-col space-y-1";
@@ -149,6 +141,7 @@
         chatLog.appendChild(chat);
       };
 
+      // Kirim ke API
       const replyMsg = async (text) => {
         const history = getMessageHistoryForAPI();
         try {
@@ -159,7 +152,7 @@
             headers: { 'x-api-key': 'key-manaxu-free' }
           });
 
-          const botData = { role: 'bot', username: 'Qira' };
+          const botData = { role: 'bot', username: 'Qira Assistant' };
           handlerMsg(botData, data.result);
           saveChat(botData, data.result);
         } catch (err) {
@@ -167,6 +160,7 @@
         }
       };
 
+      // Kirim pesan saat klik
       sendMsg.addEventListener('click', () => {
         const msg = inputMsg.value.trim();
         if (!msg) return;
@@ -185,6 +179,7 @@
         inputMsg.style.height = 'auto';
       });
 
+      // Scroll otomatis ke bawah
       const observer = new MutationObserver(() => {
         chatLog.scrollTo({
           top: chatLog.scrollHeight,
@@ -196,6 +191,7 @@
         subtree: true
       });
 
+      // Load chat
       loadChat();
     });
   </script>
